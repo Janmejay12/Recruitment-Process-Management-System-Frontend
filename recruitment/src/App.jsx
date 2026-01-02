@@ -10,6 +10,10 @@ import JobHome from "./pages/jobs/JobHome";
 import JobDetails from "./pages/jobs/JobDetails";
 import CreateJob from "./pages/jobs/CreateJob";
 import UpdateJob from "./pages/jobs/UpdateJob";
+import CandidateHome from "./pages/candidates/CandidateHome";
+import CreateCandidate from "./pages/candidates/CreateCandidate";
+import UploadResume from "./pages/candidates/UploadResume";
+
 
 
 function App() {
@@ -72,6 +76,33 @@ function App() {
             </RoleRoute>
           }
         />
+
+           <Route
+            path="/candidates"
+            element={
+              <RoleRoute allowedRoles={["Admin", "Recruiter", "HR"]}>
+                <CandidateHome />
+              </RoleRoute>
+            }
+          />
+
+          <Route
+            path="/candidates/create"
+            element={
+              <RoleRoute allowedRoles={["Admin", "Recruiter", "HR"]}>
+                <CreateCandidate />
+              </RoleRoute>
+            }
+          />
+
+          <Route
+            path="/candidates/upload-resume"
+            element={
+              <RoleRoute allowedRoles={["Admin", "Recruiter", "HR"]}>
+                <UploadResume />
+              </RoleRoute>
+            }
+          />
 
         </Routes>
       </BrowserRouter>

@@ -32,12 +32,17 @@ const Dashboard = () => {
             </p>
         </Link>
 
-
-        <DashboardCard
-          title="Candidates"
-          description="View and manage candidate profiles"
-          color="emerald"
-        />
+        <Link
+            to="/candidates"
+            className="bg-white border rounded-lg p-6 hover:shadow transition block"
+            >
+            <h3 className="text-lg font-semibold text-gray-800">
+                Candidate Management
+            </h3>
+            <p className="text-gray-500 mt-1">
+                Create and Manage Candidates
+            </p>
+        </Link>
 
         {hasRole("Admin") && (
         <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6 flex items-center justify-between">
