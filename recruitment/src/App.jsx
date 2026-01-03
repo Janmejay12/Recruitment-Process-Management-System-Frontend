@@ -13,6 +13,7 @@ import UpdateJob from "./pages/jobs/UpdateJob";
 import CandidateHome from "./pages/candidates/CandidateHome";
 import CreateCandidate from "./pages/candidates/CreateCandidate";
 import UploadResume from "./pages/candidates/UploadResume";
+import CandidateList from "./pages/candidates/CandidateList";
 
 
 
@@ -103,6 +104,16 @@ function App() {
               </RoleRoute>
             }
           />
+
+          <Route
+          path="/candidates/list"
+          element={
+            <RoleRoute allowedRoles={["Admin", "Recruiter", "HR"]}>
+              <CandidateList />
+            </RoleRoute>
+          }
+        />
+
 
         </Routes>
       </BrowserRouter>

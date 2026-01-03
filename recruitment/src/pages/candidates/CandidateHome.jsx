@@ -7,11 +7,11 @@ const CandidateHome = () => {
         Candidate Management
       </h1>
       <p className="text-gray-500 mb-6">
-        Manage candidates by adding profiles manually or uploading resumes.
+        Manage candidates, upload resumes, and track applicant profiles.
       </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Manual Candidate */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Create Candidate */}
         <div className="border rounded-lg p-5 bg-gray-50">
           <h2 className="text-lg font-medium text-gray-800 mb-2">
             Add Candidate Manually
@@ -27,7 +27,7 @@ const CandidateHome = () => {
           </Link>
         </div>
 
-        {/* Resume Upload */}
+        {/* Upload Resume */}
         <div className="border rounded-lg p-5 bg-gray-50">
           <h2 className="text-lg font-medium text-gray-800 mb-2">
             Upload Candidate Resume
@@ -40,6 +40,22 @@ const CandidateHome = () => {
             className="inline-block px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700"
           >
             Upload Resume
+          </Link>
+        </div>
+
+        {/* Candidate List */}
+        <div className="border rounded-lg p-5 bg-gray-50">
+          <h2 className="text-lg font-medium text-gray-800 mb-2">
+            View Candidates
+          </h2>
+          <p className="text-gray-600 mb-4">
+            View and manage all candidates added to the system.
+          </p>
+          <Link
+            to="/candidates/list"
+            className="inline-block px-4 py-2 bg-gray-800 text-white rounded-md text-sm font-medium hover:bg-gray-900"
+          >
+            Candidate List
           </Link>
         </div>
       </div>

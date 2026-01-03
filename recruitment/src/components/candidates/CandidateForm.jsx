@@ -1,5 +1,6 @@
 import { useState } from "react";
 import CandidateSkillsForm from "./CandidateSkillForm";
+import JobSelect from "../jobs/JobSelect";
 
 const CandidateForm = ({ onSubmit, loading }) => {
   const [form, setForm] = useState({
@@ -22,20 +23,21 @@ const CandidateForm = ({ onSubmit, loading }) => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Candidate Details */}
-      <div className="border rounded-md p-4 bg-gray-50">
-        <h2 className="font-medium text-gray-700 mb-3">
-          Candidate Information
+      {/* Job */}
+      <div className="bg-gray-50 border rounded-md p-4">
+        <JobSelect
+          value={form.jobId}
+          onChange={(jobId) => setForm({ ...form, jobId })}
+        />
+      </div>
+
+      {/* Candidate Info */}
+      <div className="bg-gray-50 border rounded-md p-4">
+        <h2 className="text-sm font-semibold text-gray-700 mb-3">
+          Candidate Details
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input
-            name="jobId"
-            placeholder="Job ID"
-            className="input"
-            onChange={handleChange}
-            required
-          />
           <input
             name="fullName"
             placeholder="Full Name"
@@ -66,7 +68,6 @@ const CandidateForm = ({ onSubmit, loading }) => {
         setSkills={(skills) => setForm({ ...form, skills })}
       />
 
-      {/* Submit */}
       <div className="flex justify-end">
         <button
           disabled={loading}

@@ -9,3 +9,7 @@ export const uploadCandidateResume = (formData, jobId) => {
     headers: { "Content-Type": "multipart/form-data" },
   });
 };
+
+export const getAllCandidates = () => {
+  return api.get("/Candidate");
+};
