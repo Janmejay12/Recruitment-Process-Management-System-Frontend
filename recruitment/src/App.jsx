@@ -14,6 +14,9 @@ import CandidateHome from "./pages/candidates/CandidateHome";
 import CreateCandidate from "./pages/candidates/CreateCandidate";
 import UploadResume from "./pages/candidates/UploadResume";
 import CandidateList from "./pages/candidates/CandidateList";
+import ScreeningHome from "./pages/screening/ScreeningHome";
+import ReviewDetails from "./pages/screening/ReviewDetails";
+
 
 
 
@@ -113,6 +116,25 @@ function App() {
             </RoleRoute>
           }
         />
+
+        <Route
+          path="/screening"
+          element={
+            <RoleRoute allowedRoles={["Admin", "Recruiter", "HR", "Reviewer"]}>
+              <ScreeningHome />
+            </RoleRoute>
+          }
+        />
+
+          <Route
+            path="/screening/review/:reviewId"
+            element={
+              <RoleRoute allowedRoles={["Admin", "Recruiter", "HR", "Reviewer", "Interviewer"]}>
+                <ReviewDetails />
+              </RoleRoute>
+            }
+          />
+
 
 
         </Routes>

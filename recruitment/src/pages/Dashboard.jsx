@@ -44,25 +44,18 @@ const Dashboard = () => {
             </p>
         </Link>
 
-        {hasRole("Admin") && (
-        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6 flex items-center justify-between">
-        <div>
-        <h3 className="text-lg font-semibold text-blue-800">
-            User Management
-        </h3>
-        <p className="text-blue-700 text-sm">
-            Register recruiters, HR, and other system users.
-        </p>
-        </div>
-
         <Link
-        to="/register-user"
-        className="px-5 py-2 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 transition"
-        >
-        Register User
+            to="/screening"
+            className="bg-white border rounded-lg p-6 hover:shadow transition block"
+            >
+            <h3 className="text-lg font-semibold text-gray-800">
+                Candidate Screening and Shortlisting
+            </h3>
+            <p className="text-gray-500 mt-1">
+                Candidate Screening and Shortlisting
+            </p>
         </Link>
-    </div>
-    )}
+        
 
       </div>
 
