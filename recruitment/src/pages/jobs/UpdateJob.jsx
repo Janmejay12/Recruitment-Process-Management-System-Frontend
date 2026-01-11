@@ -23,7 +23,6 @@ export default function EditJob() {
     applicationDeadline: ""
   });
 
-  // ================= SKILLS (ADDED – logic only)
   const [skills, setSkills] = useState([]);
   const [allSkills, setAllSkills] = useState([]);
 
@@ -34,7 +33,7 @@ export default function EditJob() {
 
   const loadAllSkills = async () => {
     const res = await api.get("/skill");
-    setAllSkills(res.data.data);
+    setAllSkills(res.data.data || []);
   };
 
   const loadJob = async () => {
@@ -57,10 +56,10 @@ export default function EditJob() {
           : ""
       });
 
-      // Load existing job skills
+      // ✅ FIXED: casing safe skillId
       setSkills(
         job.skills.map(s => ({
-          skillId: s.skillId,
+          skillId: s.skillId ?? s.SkillId,
           isMandatory: s.isMandatory,
           priority: s.priority,
           notes: s.notes || ""
@@ -119,45 +118,22 @@ export default function EditJob() {
 
               <div>
                 <label className="form-label">Job Title</label>
-                <input
-                  name="title"
-                  value={form.title}
-                  onChange={handleChange}
-                  className="form-input"
-                  required
-                />
+                <input name="title" value={form.title} onChange={handleChange} className="form-input" required />
               </div>
 
               <div>
                 <label className="form-label">Department</label>
-                <input
-                  name="department"
-                  value={form.department}
-                  onChange={handleChange}
-                  className="form-input"
-                  required
-                />
+                <input name="department" value={form.department} onChange={handleChange} className="form-input" required />
               </div>
 
               <div>
                 <label className="form-label">Location</label>
-                <input
-                  name="location"
-                  value={form.location}
-                  onChange={handleChange}
-                  className="form-input"
-                  required
-                />
+                <input name="location" value={form.location} onChange={handleChange} className="form-input" required />
               </div>
 
               <div>
                 <label className="form-label">Employment Type</label>
-                <select
-                  name="employmentType"
-                  value={form.employmentType}
-                  onChange={handleChange}
-                  className="form-input"
-                >
+                <select name="employmentType" value={form.employmentType} onChange={handleChange} className="form-input">
                   <option value="Full-time">Full-time</option>
                   <option value="Part-time">Part-time</option>
                   <option value="Contract">Contract</option>
@@ -166,12 +142,7 @@ export default function EditJob() {
 
               <div>
                 <label className="form-label">Level</label>
-                <select
-                  name="level"
-                  value={form.level}
-                  onChange={handleChange}
-                  className="form-input"
-                >
+                <select name="level" value={form.level} onChange={handleChange} className="form-input">
                   <option value="Junior">Junior</option>
                   <option value="Mid-Level">Mid-Level</option>
                   <option value="Senior">Senior</option>
@@ -181,77 +152,39 @@ export default function EditJob() {
               </div>
 
               <div>
-                <label className="form-label">Minimum Experience (years)</label>
-                <input
-                  type="number"
-                  name="minExperience"
-                  value={form.minExperience}
-                  onChange={handleChange}
-                  className="form-input"
-                />
+                <label className="form-label">Minimum Experience</label>
+                <input type="number" name="minExperience" value={form.minExperience} onChange={handleChange} className="form-input" />
               </div>
 
               <div>
                 <label className="form-label">Number of Positions</label>
-                <input
-                  type="number"
-                  name="numberOfPositions"
-                  value={form.numberOfPositions}
-                  onChange={handleChange}
-                  className="form-input"
-                />
+                <input type="number" name="numberOfPositions" value={form.numberOfPositions} onChange={handleChange} className="form-input" />
               </div>
 
               <div>
                 <label className="form-label">Application Deadline</label>
-                <input
-                  type="date"
-                  name="applicationDeadline"
-                  value={form.applicationDeadline}
-                  onChange={handleChange}
-                  className="form-input"
-                />
+                <input type="date" name="applicationDeadline" value={form.applicationDeadline} onChange={handleChange} className="form-input" />
               </div>
 
               <div className="md:col-span-2">
                 <label className="form-label">Salary Range</label>
-                <input
-                  name="salaryRange"
-                  value={form.salaryRange}
-                  onChange={handleChange}
-                  className="form-input"
-                />
+                <input name="salaryRange" value={form.salaryRange} onChange={handleChange} className="form-input" />
               </div>
             </div>
 
             {/* ================= DESCRIPTION ================= */}
             <div>
               <label className="form-label">Job Description</label>
-              <textarea
-                name="description"
-                rows="5"
-                value={form.description}
-                onChange={handleChange}
-                className="form-input"
-                required
-              />
+              <textarea name="description" rows="5" value={form.description} onChange={handleChange} className="form-input" required />
             </div>
 
-            {/* ================= SKILLS (APPENDED – UI CONSISTENT) ================= */}
+            {/* ================= SKILLS ================= */}
             <div className="border-t pt-6">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-semibold text-gray-800">
-                  Job Skills
-                </h2>
-
+                <h2 className="text-lg font-semibold text-gray-800">Job Skills</h2>
                 <button
                   type="button"
-                  onClick={() =>
-                    setSkills([
-                      ...skills,
-                      { skillId: "", isMandatory: true, priority: 1, notes: "" }
-                    ])
-                  }
+                  onClick={() => setSkills([...skills, { skillId: "", isMandatory: true, priority: 1, notes: "" }])}
                   className="text-blue-600 text-sm hover:underline"
                 >
                   + Add Skill
@@ -260,10 +193,8 @@ export default function EditJob() {
 
               <div className="space-y-3">
                 {skills.map((s, i) => (
-                  <div
-                    key={i}
-                    className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end"
-                  >
+                  <div key={i} className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+
                     <select
                       className="form-input"
                       value={s.skillId}
@@ -274,11 +205,15 @@ export default function EditJob() {
                       }}
                     >
                       <option value="">Select Skill</option>
-                      {allSkills.map(sk => (
-                        <option key={sk.skillId} value={sk.skillId}>
-                          {sk.skillName}
-                        </option>
-                      ))}
+                      {allSkills.map(sk => {
+                        const id = sk.skillId ?? sk.SkillId;
+                        const name = sk.skillName ?? sk.SkillName;
+                        return (
+                          <option key={id} value={id}>
+                            {name}
+                          </option>
+                        );
+                      })}
                     </select>
 
                     <select
@@ -321,13 +256,12 @@ export default function EditJob() {
 
                     <button
                       type="button"
-                      onClick={() =>
-                        setSkills(skills.filter((_, idx) => idx !== i))
-                      }
+                      onClick={() => setSkills(skills.filter((_, idx) => idx !== i))}
                       className="text-red-600 text-sm"
                     >
                       Remove
                     </button>
+
                   </div>
                 ))}
               </div>
@@ -335,19 +269,11 @@ export default function EditJob() {
 
             {/* ================= ACTIONS ================= */}
             <div className="flex justify-end gap-3 pt-4 border-t">
-              <button
-                type="button"
-                onClick={() => navigate(-1)}
-                className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
-              >
+              <button type="button" onClick={() => navigate(-1)} className="px-4 py-2 rounded bg-gray-200">
                 Cancel
               </button>
 
-              <button
-                type="submit"
-                disabled={saving}
-                className="px-6 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
-              >
+              <button type="submit" disabled={saving} className="px-6 py-2 rounded bg-blue-600 text-white">
                 {saving ? "Saving..." : "Update Job"}
               </button>
             </div>

@@ -15,6 +15,10 @@ export const saveSkillEvaluation = (reviewId, payload) => {
 export const addReviewComment = (reviewId, payload) => {
   return api.post(`/Screening/${reviewId}/comment`, payload);
 };
+export const createReview = (payload) => {
+  return api.post("/Screening/create", payload);
+};
+
 
 export const assignReviewer = (reviewId, payload) => {
   return api.put(`/Screening/${reviewId}/assign-reviewer`, payload);

@@ -9,11 +9,13 @@ const JobSelect = ({ value, onChange }) => {
     const loadJobs = async () => {
       try {
         const res = await getJobs();
+        console.log("JOBS API:", res.data);
+
         const allJobs = res.data.data || res.data;
 
         // ✅ FILTER: only active & non-closed jobs
         const openJobs = allJobs.filter(
-          (job) => job.isActive && job.status !== "Closed"
+          (job) => job.IsActive && job.Status !== "Closed"
         );
 
         setJobs(openJobs);

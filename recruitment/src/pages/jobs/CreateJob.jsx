@@ -6,7 +6,6 @@ import Layout from "../../components/common/Layout";
 export default function CreateJob() {
   const navigate = useNavigate();
 
-  // ================= EXISTING FORM STATE (UNCHANGED)
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -20,7 +19,6 @@ export default function CreateJob() {
     applicationDeadline: ""
   });
 
-  // ================= SKILLS (NEW – APPENDED ONLY)
   const [skills, setSkills] = useState([]);
   const [allSkills, setAllSkills] = useState([]);
   const [saving, setSaving] = useState(false);
@@ -31,7 +29,7 @@ export default function CreateJob() {
 
   const loadSkills = async () => {
     const res = await api.get("/skill");
-    setAllSkills(res.data.data);
+    setAllSkills(res.data.data || []);
   };
 
   const handleChange = e => {
@@ -61,14 +59,13 @@ export default function CreateJob() {
       <div className="max-w-6xl mx-auto">
         <div className="bg-white border rounded-lg shadow-sm p-6">
 
-          {/* ================= ORIGINAL UI (UNCHANGED) ================= */}
           <h1 className="text-2xl font-semibold text-gray-800 mb-6">
             Create Job
           </h1>
 
           <form onSubmit={submit} className="space-y-6">
 
-            {/* BASIC INFO – AS YOU HAD IT */}
+            {/* ================= BASIC INFO ================= */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="form-label">Job Title</label>
@@ -131,7 +128,7 @@ export default function CreateJob() {
               <textarea rows="5" name="description" value={form.description} onChange={handleChange} className="form-input" required />
             </div>
 
-            {/* ================= SKILLS (APPENDED BELOW – NO UI CHANGE ABOVE) ================= */}
+            {/* ================= SKILLS ================= */}
             <div className="border-t pt-6">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-lg font-semibold text-gray-800">
@@ -155,40 +152,58 @@ export default function CreateJob() {
               <div className="space-y-3">
                 {skills.map((s, i) => (
                   <div key={i} className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
-                    <select className="form-input" value={s.skillId}
+
+                    <select
+                      className="form-input"
+                      value={s.skillId}
                       onChange={e => {
                         const copy = [...skills];
                         copy[i].skillId = Number(e.target.value);
                         setSkills(copy);
-                      }}>
+                      }}
+                    >
                       <option value="">Select Skill</option>
-                      {allSkills.map(sk => (
-                        <option key={sk.skillId} value={sk.skillId}>{sk.skillName}</option>
-                      ))}
+                      {allSkills.map(sk => {
+                        const id = sk.skillId ?? sk.SkillId;
+                        const name = sk.skillName ?? sk.SkillName;
+                        return (
+                          <option key={id} value={id}>
+                            {name}
+                          </option>
+                        );
+                      })}
                     </select>
 
-                    <select className="form-input" value={s.isMandatory}
+                    <select
+                      className="form-input"
+                      value={s.isMandatory}
                       onChange={e => {
                         const copy = [...skills];
                         copy[i].isMandatory = e.target.value === "true";
                         setSkills(copy);
-                      }}>
+                      }}
+                    >
                       <option value="true">Mandatory</option>
                       <option value="false">Optional</option>
                     </select>
 
-                    <select className="form-input" value={s.priority}
+                    <select
+                      className="form-input"
+                      value={s.priority}
                       onChange={e => {
                         const copy = [...skills];
                         copy[i].priority = Number(e.target.value);
                         setSkills(copy);
-                      }}>
+                      }}
+                    >
                       <option value={1}>High</option>
                       <option value={2}>Medium</option>
                       <option value={3}>Low</option>
                     </select>
 
-                    <input className="form-input" placeholder="Notes"
+                    <input
+                      className="form-input"
+                      placeholder="Notes"
                       value={s.notes}
                       onChange={e => {
                         const copy = [...skills];
@@ -197,17 +212,20 @@ export default function CreateJob() {
                       }}
                     />
 
-                    <button type="button"
+                    <button
+                      type="button"
                       onClick={() => setSkills(skills.filter((_, x) => x !== i))}
-                      className="text-red-600 text-sm">
+                      className="text-red-600 text-sm"
+                    >
                       Remove
                     </button>
+
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* ================= SUBMIT (UNCHANGED) ================= */}
+            {/* ================= SUBMIT ================= */}
             <div className="flex justify-end gap-3 pt-4 border-t">
               <button
                 type="submit"

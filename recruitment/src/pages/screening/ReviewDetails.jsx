@@ -5,7 +5,11 @@ import {
   saveSkillEvaluation,
   addReviewComment,
   rejectCandidate,
+  assignReviewer,
+  shortlistCandidate,
 } from "../../api/screeningApi";
+import AssignReviewerModal from "../../components/screening/AssignReviewerModal";
+import ShortlistModal from "../../components/screening/ShortlistModal";
 
 const ReviewDetails = () => {
   const { reviewId } = useParams();
@@ -14,6 +18,9 @@ const ReviewDetails = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [comment, setComment] = useState("");
+
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [showShortlistModal, setShowShortlistModal] = useState(false);
 
   const load = async () => {
     try {
@@ -56,12 +63,32 @@ const ReviewDetails = () => {
   };
 
   const handleReject = async () => {
-    if (!confirm("Are you sure you want to reject this candidate?")) return;
+    if (!window.confirm("Are you sure you want to reject this candidate?")) return;
     try {
       await rejectCandidate(reviewId);
       navigate("/screening");
     } catch {
       alert("Failed to reject candidate");
+    }
+  };
+
+  const handleAssignReviewer = async (userId) => {
+    try {
+      await assignReviewer(reviewId, { reviewerUserId: userId });
+      setShowAssignModal(false);
+      await load();
+    } catch {
+      alert("Failed to assign reviewer");
+    }
+  };
+
+  const handleShortlist = async (userId) => {
+    try {
+      await shortlistCandidate(reviewId, { interviewerUserId: userId });
+      setShowShortlistModal(false);
+      navigate("/screening");
+    } catch {
+      alert("Failed to shortlist candidate");
     }
   };
 
@@ -90,6 +117,9 @@ const ReviewDetails = () => {
             </span>
             <p className="text-sm text-gray-500 mt-2">
               Reviewer: {data.assignedReviewerName || "Not assigned"}
+            </p>
+            <p className="text-sm text-gray-500">
+              Interviewer: {data.assignedInterviewerName || "-"}
             </p>
           </div>
         </div>
@@ -147,7 +177,9 @@ const ReviewDetails = () => {
                     min="0"
                     max="50"
                     className="input w-24"
-                    defaultValue="0"
+                    defaultValue={
+                      data.verifiedSkills.find(v => v.skillId === skill.skillId)?.yearsExperience || 0
+                    }
                     id={`skill-${skill.skillId}`}
                   />
                 </td>
@@ -156,9 +188,7 @@ const ReviewDetails = () => {
                     onClick={() =>
                       handleSkillSave(
                         skill.skillId,
-                        document.getElementById(
-                          `skill-${skill.skillId}`
-                        ).value
+                        document.getElementById(`skill-${skill.skillId}`).value
                       )
                     }
                     className="px-3 py-1 text-xs rounded bg-blue-600 text-white"
@@ -210,14 +240,46 @@ const ReviewDetails = () => {
       </div>
 
       {/* ACTIONS */}
-      <div className="bg-white border rounded-lg shadow p-6 flex justify-end">
+      <div className="bg-white border rounded-lg shadow p-6 flex justify-between">
+        <div className="flex gap-3">
+          <button
+            onClick={() => setShowAssignModal(true)}
+            className="px-4 py-2 bg-blue-600 text-white rounded"
+          >
+            Assign Reviewer
+          </button>
+
+          <button
+            onClick={() => setShowShortlistModal(true)}
+            className="px-4 py-2 bg-green-600 text-white rounded"
+          >
+            Shortlist
+          </button>
+        </div>
+
         <button
           onClick={handleReject}
           className="px-4 py-2 bg-red-600 text-white rounded"
         >
-          Reject Candidate
+          Reject
         </button>
       </div>
+
+      {/* MODALS */}
+      {showAssignModal && (
+        <AssignReviewerModal
+          onClose={() => setShowAssignModal(false)}
+          onAssign={handleAssignReviewer}
+        />
+      )}
+
+      {showShortlistModal && (
+        <ShortlistModal
+          onClose={() => setShowShortlistModal(false)}
+          onShortlist={handleShortlist}
+        />
+      )}
+
     </div>
   );
 };

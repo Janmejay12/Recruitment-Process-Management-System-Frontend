@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { getAllCandidates } from "../../api/candidateApi";
+import { createReview } from "../../api/screeningApi";   // ✅ ADDED
 
 const CandidateList = () => {
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [sendingId, setSendingId] = useState(null);        // ✅ ADDED
 
   useEffect(() => {
     const loadCandidates = async () => {
@@ -18,6 +20,25 @@ const CandidateList = () => {
     };
     loadCandidates();
   }, []);
+
+  const sendToScreening = async (c) => {                   // ✅ ADDED
+    if (!window.confirm(`Send ${c.fullName} to screening?`)) return;
+
+    try {
+      setSendingId(c.candidateId);
+
+      await createReview({
+        candidateId: c.candidateId,
+        jobId: c.jobId
+      });
+
+      alert("Candidate sent to screening successfully.");
+    } catch (e) {
+      alert(e.response?.data?.message || "Failed to create review");
+    } finally {
+      setSendingId(null);
+    }
+  };
 
   if (loading) {
     return <p className="text-gray-500">Loading candidates...</p>;
@@ -38,6 +59,7 @@ const CandidateList = () => {
               <th className="px-4 py-2 border">Job Applied</th>
               <th className="px-4 py-2 border">Status</th>
               <th className="px-4 py-2 border">Created</th>
+              <th className="px-4 py-2 border">Action</th>   {/* ✅ ADDED */}
             </tr>
           </thead>
 
@@ -47,7 +69,6 @@ const CandidateList = () => {
                 <td className="px-4 py-2 border">{c.fullName}</td>
                 <td className="px-4 py-2 border">{c.email}</td>
 
-                {/* ✅ JOB TITLE */}
                 <td className="px-4 py-2 border font-medium">
                   {c.jobTitle}
                 </td>
@@ -60,6 +81,16 @@ const CandidateList = () => {
 
                 <td className="px-4 py-2 border">
                   {new Date(c.createdAt).toLocaleDateString()}
+                </td>
+
+                <td className="px-4 py-2 border text-center"> {/* ✅ ADDED */}
+                  <button
+                    disabled={sendingId === c.candidateId}
+                    onClick={() => sendToScreening(c)}
+                    className="px-2 py-1 text-xs bg-green-600 text-white rounded disabled:opacity-50"
+                  >
+                    {sendingId === c.candidateId ? "Sending..." : "Send to Screening"}
+                  </button>
                 </td>
               </tr>
             ))}
