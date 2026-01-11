@@ -15,7 +15,7 @@ const JobSelect = ({ value, onChange }) => {
 
         // ✅ FILTER: only active & non-closed jobs
         const openJobs = allJobs.filter(
-          (job) => job.IsActive && job.Status !== "Closed"
+          (job) =>  job.Status !== "Closed"
         );
 
         setJobs(openJobs);

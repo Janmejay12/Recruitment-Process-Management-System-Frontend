@@ -4,11 +4,18 @@ import { getUsersByRole } from "../../api/userApi";
 const ShortlistModal = ({ onClose, onShortlist }) => {
   const [users, setUsers] = useState([]);
   const [selected, setSelected] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
-      const res = await getUsersByRole("Interviewer");
-      setUsers(res.data.data || res.data);
+      try {
+        const res = await getUsersByRole("Interviewer");
+        setUsers(res.data?.data || res.data || []);
+      } catch {
+        alert("Failed to load interviewers");
+      } finally {
+        setLoading(false);
+      }
     };
     load();
   }, []);
@@ -20,18 +27,28 @@ const ShortlistModal = ({ onClose, onShortlist }) => {
           Assign Interviewer & Shortlist
         </h2>
 
-        <select
-          className="input"
-          value={selected}
-          onChange={(e) => setSelected(e.target.value)}
-        >
-          <option value="">Select Interviewer</option>
-          {users.map((u) => (
-            <option key={u.userId} value={u.userId}>
-              {u.fullName} ({u.email})
-            </option>
-          ))}
-        </select>
+        {loading ? (
+          <p className="text-sm text-gray-500">Loading interviewers...</p>
+        ) : (
+          <select
+            className="input"
+            value={selected}
+            onChange={(e) => setSelected(e.target.value)}
+          >
+            <option value="">Select Interviewer</option>
+            {users.map((u) => (
+              <option key={u.userId} value={u.userId}>
+                {u.fullName} ({u.email})
+              </option>
+            ))}
+          </select>
+        )}
+
+        {!loading && users.length === 0 && (
+          <p className="text-sm text-gray-500 mt-2">
+            No interviewers found.
+          </p>
+        )}
 
         <div className="flex justify-end gap-3 mt-4">
           <button

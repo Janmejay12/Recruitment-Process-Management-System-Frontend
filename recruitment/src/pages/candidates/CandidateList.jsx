@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { getAllCandidates } from "../../api/candidateApi";
-import { createReview } from "../../api/screeningApi";   // ✅ ADDED
+import { createReview } from "../../api/screeningApi";
 
 const CandidateList = () => {
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [sendingId, setSendingId] = useState(null);        // ✅ ADDED
+  const [sendingId, setSendingId] = useState(null);
 
   useEffect(() => {
     const loadCandidates = async () => {
@@ -21,7 +21,7 @@ const CandidateList = () => {
     loadCandidates();
   }, []);
 
-  const sendToScreening = async (c) => {                   // ✅ ADDED
+  const sendToScreening = async (c) => {
     if (!window.confirm(`Send ${c.fullName} to screening?`)) return;
 
     try {
@@ -59,41 +59,51 @@ const CandidateList = () => {
               <th className="px-4 py-2 border">Job Applied</th>
               <th className="px-4 py-2 border">Status</th>
               <th className="px-4 py-2 border">Created</th>
-              <th className="px-4 py-2 border">Action</th>   {/* ✅ ADDED */}
+              <th className="px-4 py-2 border">Action</th>
             </tr>
           </thead>
 
           <tbody>
-            {candidates.map((c) => (
-              <tr key={c.candidateId} className="text-sm text-gray-700">
-                <td className="px-4 py-2 border">{c.fullName}</td>
-                <td className="px-4 py-2 border">{c.email}</td>
+            {candidates.map((c) => {
+              const isInPipeline =
+                c.profileStatus === "Screening" ||
+                c.profileStatus === "Interview";
 
-                <td className="px-4 py-2 border font-medium">
-                  {c.jobTitle}
-                </td>
+              return (
+                <tr key={c.candidateId} className="text-sm text-gray-700">
+                  <td className="px-4 py-2 border">{c.fullName}</td>
+                  <td className="px-4 py-2 border">{c.email}</td>
 
-                <td className="px-4 py-2 border">
-                  <span className="px-2 py-1 text-xs rounded bg-blue-100 text-blue-700">
-                    {c.profileStatus}
-                  </span>
-                </td>
+                  <td className="px-4 py-2 border font-medium">
+                    {c.jobTitle}
+                  </td>
 
-                <td className="px-4 py-2 border">
-                  {new Date(c.createdAt).toLocaleDateString()}
-                </td>
+                  <td className="px-4 py-2 border">
+                    <span className="px-2 py-1 text-xs rounded bg-blue-100 text-blue-700">
+                      {c.profileStatus}
+                    </span>
+                  </td>
 
-                <td className="px-4 py-2 border text-center"> {/* ✅ ADDED */}
-                  <button
-                    disabled={sendingId === c.candidateId}
-                    onClick={() => sendToScreening(c)}
-                    className="px-2 py-1 text-xs bg-green-600 text-white rounded disabled:opacity-50"
-                  >
-                    {sendingId === c.candidateId ? "Sending..." : "Send to Screening"}
-                  </button>
-                </td>
-              </tr>
-            ))}
+                  <td className="px-4 py-2 border">
+                    {new Date(c.createdAt).toLocaleDateString()}
+                  </td>
+
+                  <td className="px-4 py-2 border text-center">
+                    <button
+                      disabled={sendingId === c.candidateId || isInPipeline}
+                      onClick={() => sendToScreening(c)}
+                      className="px-2 py-1 text-xs bg-green-600 text-white rounded disabled:opacity-50"
+                    >
+                      {isInPipeline
+                        ? "In Pipeline"
+                        : sendingId === c.candidateId
+                        ? "Sending..."
+                        : "Send to Screening"}
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
 

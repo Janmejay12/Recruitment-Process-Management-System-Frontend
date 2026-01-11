@@ -10,10 +10,12 @@ import {
 } from "../../api/screeningApi";
 import AssignReviewerModal from "../../components/screening/AssignReviewerModal";
 import ShortlistModal from "../../components/screening/ShortlistModal";
+import { useAuth } from "../../context/AuthContext";
 
 const ReviewDetails = () => {
   const { reviewId } = useParams();
   const navigate = useNavigate();
+  const { hasRole } = useAuth();
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -95,6 +97,15 @@ const ReviewDetails = () => {
   if (loading) return <p className="text-gray-500">Loading...</p>;
   if (!data) return null;
 
+  const isLocked =
+    data.currentStage === "Rejected" ||
+    data.currentStage === "Shortlisted" ||
+    data.currentStage === "Interview";
+
+  const canEvaluate = hasRole("Reviewer");
+  const canAssign = hasRole("Admin") || hasRole("Recruiter");
+  const canShortlist = hasRole("Admin") || hasRole("Recruiter");
+
   return (
     <div className="space-y-6">
 
@@ -146,60 +157,114 @@ const ReviewDetails = () => {
         </div>
       )}
 
-      {/* SKILLS */}
+      {/* ================= SKILL SCREENING ================= */}
       <div className="bg-white border rounded-lg shadow p-6">
         <h2 className="font-semibold text-gray-800 mb-4">
-          Skill Evaluation
+          Skill Screening
         </h2>
 
-        <table className="min-w-full border">
-          <thead className="bg-gray-50 text-sm">
-            <tr>
-              <th className="border px-3 py-2">Skill</th>
-              <th className="border px-3 py-2">Mandatory</th>
-              <th className="border px-3 py-2">Years</th>
-              <th className="border px-3 py-2">Action</th>
-            </tr>
-          </thead>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-          <tbody>
-            {data.jobRequiredSkills.map((skill) => (
-              <tr key={skill.skillId} className="text-sm">
-                <td className="border px-3 py-2">
-                  {skill.skillName}
-                </td>
-                <td className="border px-3 py-2">
-                  {skill.isMandatory ? "Yes" : "No"}
-                </td>
-                <td className="border px-3 py-2">
+          {/* RESUME SKILLS */}
+          <div>
+            <h3 className="text-sm font-semibold text-gray-700 mb-2">
+              Resume Skills
+            </h3>
+
+            <div className="border rounded">
+              {data.resumeSkills.map((s) => (
+                <div key={s.skillId} className="flex justify-between px-3 py-2 border-b text-sm">
+                  <span>{s.skillName}</span>
+                  <span className="text-gray-500">{s.yearsExperience} yrs</span>
+                </div>
+              ))}
+
+              {data.resumeSkills.length === 0 && (
+                <div className="p-3 text-sm text-gray-500">
+                  No resume skills found.
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* JOB SKILLS */}
+          <div>
+            <h3 className="text-sm font-semibold text-gray-700 mb-2">
+              Job Required Skills
+            </h3>
+
+            <div className="border rounded">
+              {data.jobRequiredSkills.map((s) => (
+                <div key={s.skillId} className="px-3 py-2 border-b text-sm">
+                  <div>{s.skillName}</div>
+                  <div className="text-xs text-gray-500">
+                    {s.isMandatory ? "Mandatory" : "Optional"} • Priority {s.priority}
+                  </div>
+                </div>
+              ))}
+
+              {data.jobRequiredSkills.length === 0 && (
+                <div className="p-3 text-sm text-gray-500">
+                  No job skills defined.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* VERIFIED SKILLS */}
+        <div className="mt-6 border-t pt-4">
+          <h3 className="text-sm font-semibold text-gray-700 mb-3">
+            Verified Skills (Reviewer Confirms)
+          </h3>
+
+          {!canEvaluate && (
+            <p className="text-sm text-gray-500 mb-3">
+              Only assigned reviewers can evaluate skills.
+            </p>
+          )}
+
+          <div className="space-y-3">
+            {data.resumeSkills.map((s) => {
+              const verified = data.verifiedSkills.find(v => v.skillId === s.skillId);
+
+              return (
+                <div key={s.skillId} className="flex items-center gap-4">
+                  <div className="w-1/3 text-sm">{s.skillName}</div>
+
                   <input
                     type="number"
                     min="0"
                     max="50"
-                    className="input w-24"
-                    defaultValue={
-                      data.verifiedSkills.find(v => v.skillId === skill.skillId)?.yearsExperience || 0
-                    }
-                    id={`skill-${skill.skillId}`}
+                    className="input w-32"
+                    defaultValue={verified?.yearsExperience ?? s.yearsExperience}
+                    id={`verify-${s.skillId}`}
+                    disabled={isLocked || !canEvaluate}
                   />
-                </td>
-                <td className="border px-3 py-2">
+
                   <button
+                    disabled={isLocked || !canEvaluate}
                     onClick={() =>
                       handleSkillSave(
-                        skill.skillId,
-                        document.getElementById(`skill-${skill.skillId}`).value
+                        s.skillId,
+                        document.getElementById(`verify-${s.skillId}`).value
                       )
                     }
-                    className="px-3 py-1 text-xs rounded bg-blue-600 text-white"
+                    className="px-3 py-1 text-xs rounded bg-blue-600 text-white disabled:opacity-50"
                   >
                     Save
                   </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </div>
+              );
+            })}
+
+            {data.resumeSkills.length === 0 && (
+              <p className="text-sm text-gray-500">
+                No resume skills to verify.
+              </p>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* COMMENTS */}
@@ -227,12 +292,14 @@ const ReviewDetails = () => {
           placeholder="Add comment..."
           value={comment}
           onChange={(e) => setComment(e.target.value)}
+          disabled={isLocked}
         />
 
         <div className="flex justify-end mt-2">
           <button
             onClick={handleAddComment}
-            className="px-4 py-2 bg-gray-800 text-white rounded"
+            disabled={isLocked}
+            className="px-4 py-2 bg-gray-800 text-white rounded disabled:opacity-50"
           >
             Add Comment
           </button>
@@ -242,27 +309,36 @@ const ReviewDetails = () => {
       {/* ACTIONS */}
       <div className="bg-white border rounded-lg shadow p-6 flex justify-between">
         <div className="flex gap-3">
-          <button
-            onClick={() => setShowAssignModal(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded"
-          >
-            Assign Reviewer
-          </button>
+          {canAssign && (
+            <button
+              onClick={() => setShowAssignModal(true)}
+              disabled={isLocked}
+              className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
+            >
+              Assign Reviewer
+            </button>
+          )}
 
-          <button
-            onClick={() => setShowShortlistModal(true)}
-            className="px-4 py-2 bg-green-600 text-white rounded"
-          >
-            Shortlist
-          </button>
+          {canShortlist && (
+            <button
+              onClick={() => setShowShortlistModal(true)}
+              disabled={isLocked}
+              className="px-4 py-2 bg-green-600 text-white rounded disabled:opacity-50"
+            >
+              Shortlist
+            </button>
+          )}
         </div>
 
-        <button
-          onClick={handleReject}
-          className="px-4 py-2 bg-red-600 text-white rounded"
-        >
-          Reject
-        </button>
+        {canShortlist && (
+          <button
+            onClick={handleReject}
+            disabled={isLocked}
+            className="px-4 py-2 bg-red-600 text-white rounded disabled:opacity-50"
+          >
+            Reject
+          </button>
+        )}
       </div>
 
       {/* MODALS */}
